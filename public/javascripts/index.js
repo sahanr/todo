@@ -13,15 +13,34 @@ fetch('/api/task').then(function(response){
 
 bindEventListeners();
 
-function renderTasks(tasks){
-	for (var i = 0; i < tasks.length; i++){
-		$$taskContainer.appendChild(renderTask(tasks[i]));
-	}
+function bindEventListeners(){
+
+	$$addTask.addEventListener('click', function(){
+		renderTask();
+	});
+
+	document.addEventListener('click', function(event){
+		var $taskContainer = event.target.parentNode;
+		if (event.target.className === 'save-task'){
+			var id = $taskContainer.id;
+			if (id){
+				editTask($taskContainer);
+			} else {
+				addTask($taskContainer);
+			}
+		} else if (event.target.className === 'delete-task'){
+			deleteTask($taskContainer)
+		}
+	});
 }
 
-socket.on('add task', function(task){
-	renderTask(task)
-});
+//Render function
+
+function renderTasks(tasks){
+	for (var i = 0; i < tasks.length; i++){
+		renderTask(tasks[i]);
+	}
+}
 
 function renderTask(task = {}){
 	var $taskContainer = document.createElement('div');
@@ -49,52 +68,71 @@ function renderTask(task = {}){
 	$deleteTaskButton.innerText = 'Delete';
 	$deleteTaskButton.className = 'delete-task'
 	$taskContainer.appendChild($deleteTaskButton);
-	return $taskContainer;
+
+	$$taskContainer.appendChild($taskContainer);
 }
 
-function bindEventListeners(){
+// socket
 
-	$$addTask.addEventListener('click', function(){
-		$$taskContainer.appendChild(renderTask());
-	});
+socket.on('add task', function(task){
+	renderTask(task);
+});
 
-	document.addEventListener('click', function(event){
-		if (event.target.className === 'save-task'){
-			var taskContainer = event.target.parentNode;
-			var id = taskContainer.id;
-			if (id){
-				sendEditTaskReq(taskContainer, id);
-			} else {
-				sendCreateTaskReq(taskContainer).then(function(response){
-					if(response.ok) {
-						return response.json();
-					} 
-				}).then(function(task){
-					socket.emit('add task', task);
-					$$taskContainer.appendChild(renderTask(task));
-				});
-				taskContainer.remove();
-			}
-		} else if (event.target.className === 'delete-task'){
-			var taskContainer = event.target.parentNode;
-			var id = taskContainer.id;
-			
-			sendDeleteTaskReq(id).then(function(response){
-				if(response.ok) {
-					return;
-				} 
-			}).then(function(){
-				taskContainer.remove();
-			});
+socket.on('edit task', function(task){
+	const $task = document.getElementById(task._id);
+	$task.querySelector('input.task-name').value = task.name;
+});
+
+socket.on('delete task', function(id){
+	const $task = document.getElementById(id);
+	$task.remove();
+});
+
+//Handlers
+
+function addTask(taskContainer){
+	sendCreateTaskReq(taskContainer).then(function(response){
+		if(response.ok) {
+			return response.json();
+		} else {
+			throw new Error('це зрада!');
 		}
-	});
-
+	}).then(function(task){
+		socket.emit('add task', task);
+	}).catch(alert);
+	taskContainer.remove();
 }
 
-function sendEditTaskReq(taskContainer, id){
+function editTask(taskContainer){
+	sendEditTaskReq(taskContainer).then(function(response){
+		if(response.ok) {
+			return response.json();
+		} else {
+			throw new Error('це зрада!');
+		}
+	}).then().then(function(task){
+		socket.emit('edit task', task);
+	}).catch(alert);
+}
+
+function deleteTask(taskContainer){
+	var id = taskContainer.id;
+	socket.emit('delete task', id);
+	sendDeleteTaskReq(id).then(function(response){
+		if(response.ok) {
+			return;
+		} 
+	}).then(function(){
+		taskContainer.remove();
+	});
+}
+
+// Requests
+
+function sendEditTaskReq(taskContainer){
 	var name = taskContainer.querySelector('.task-name').value;
 
-	return fetch('/api/task/' + id, {
+	return fetch('/api/task/' + taskContainer.id, {
 		method: 'PUT',
 		headers: {
 			'Accept': 'application/json',

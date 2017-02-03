@@ -16,6 +16,14 @@ class Repository {
 		return this.model.create(data);
 	}
 
+	findOneAndUpdate(queryObj, body) {
+		if (queryObj && queryObj._id){
+			queryObj._id = ObjectId(queryObj._id);
+		}
+		const query = this.model.findOneAndUpdate(queryObj, body, { new: true });
+		return query.exec();
+	}
+
 	update(queryObj, obj) {
 		var query = this.model.update(queryObj, obj);
 		return query.exec();

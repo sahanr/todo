@@ -17,7 +17,7 @@ class TaskService {
 		if(task.name.toUpperCase().indexOf('ЗРАДА') !== -1){
 			throw new Error('це зрада!')
 		}
-		return taskRepository.update({_id: id}, task);
+		return taskRepository.findOneAndUpdate({_id: id}, task);
 	}
 
 	deleteTask(id){

@@ -20,8 +20,8 @@ task.post('/', (req, res, next) => {
 });
 
 task.put('/:id', (req, res, next) => {
-	service.editTask(req.params.id, req.body).then(() => {
-		res.end();
+	service.editTask(req.params.id, req.body).then((task) => {
+		res.send(task);
 	}).catch((err) => {
 		res.status(400).end();
 	});
