@@ -1,15 +1,16 @@
 const mongoose = require('mongoose');
+const config = require('../../config/');
 
 mongoose.Promise = global.Promise;
 
 const db = () => {
-	mongoose.connect('mongodb://127.0.0.1/tasks');
+	mongoose.connect(config.db.uri, config.db.opts);
 
 	mongoose.set('debug', true);
 	
 	mongoose.connection.on('connected',  () => {
 		this.state = 'connected';
-			console.log('Mongoose default connection open to 127.0.0.1/tasks');
+			console.log('Mongoose default connection open to ' + config.db.uri);
 	});
 
 	mongoose.connection.on('error', (err) => {

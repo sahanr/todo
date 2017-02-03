@@ -10,6 +10,6 @@ a {
 .save-task,
 .delete-task,
 .task-name{
-	margin-right: 10px;
+	margin-left: 10px;
 	margin-bottom: 15px;
 }

@@ -1,7 +1,7 @@
 const express = require('express');
 const task = express.Router();
 
-const service = require('./service.js');
+const service = require('./taskService');
 
 task.get('/', (req, res, next) => {
 	service.getAllTasks().then((tasks) => {

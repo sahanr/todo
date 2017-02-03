@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const ObjectId = mongoose.Schema.ObjectId;
 
 const Task = new mongoose.Schema({
-	name: String
+	name: String,
 });
 
 Task.methods.getViewModel = function(){

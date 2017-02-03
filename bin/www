@@ -4,10 +4,10 @@
  * Module dependencies.
  */
 
-var app = require('../app/app');
+var app = require('../app/index');
 var debug = require('debug')('todo:server');
 var http = require('http');
-
+const socketService = require('../app/socket/socketService');
 /**
  * Get port from environment and store in Express.
  */
@@ -21,6 +21,8 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+socketService(server);
 
 /**
  * Listen on provided port, on all network interfaces.
