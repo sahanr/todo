@@ -1,5 +1,8 @@
 todo task
 
-npm install
-npm start
-open http://localhost:4444/
+
+1. npm install
+
+2. npm start
+
+3. open http://localhost:4444/
