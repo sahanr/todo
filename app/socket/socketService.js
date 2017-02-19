@@ -21,6 +21,10 @@ function SocketService(io){
 	  	io.emit('delete task', id);
 	    console.log('delete task: ' + id);
 	  });
+
+	  socket.on('get number', function(number){
+	  	io.emit('get number', number);
+	  });
 	});
 }
 

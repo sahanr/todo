@@ -1,5 +1,7 @@
 var $$addTask = document.getElementById('add-task');
 var $$taskContainer = document.getElementById('tasks-container');
+var $$getnNumber = document.getElementById('get-fibonacci');
+var $$fibonacciNumber = document.getElementById('fibonacci-number');
 
 var socket = io.connect('http://localhost:4444');
 
@@ -19,6 +21,10 @@ function bindEventListeners(){
 		renderTask();
 	});
 
+	$$getnNumber.addEventListener('click', function(){
+		getFibonacciNumber();
+	});
+
 	document.addEventListener('click', function(event){
 		var $taskContainer = event.target.parentNode;
 		if (event.target.className === 'save-task'){
@@ -32,6 +38,18 @@ function bindEventListeners(){
 			deleteTask($taskContainer)
 		}
 	});
+}
+
+//Fibonacci
+
+function getFibonacciNumber(){
+	sendGetFibonacciReq().then(function(response){
+		if(response.ok) {
+			return response.json();
+		}
+	}).then(function(response){
+			socket.emit('get number', response.number);
+	}).catch(alert);
 }
 
 //Render function
@@ -88,6 +106,10 @@ socket.on('delete task', function(id){
 	$task.remove();
 });
 
+socket.on('get number', function(number){
+	$$fibonacciNumber.innerText = number;
+});
+
 //Handlers
 
 function addTask(taskContainer){
@@ -110,7 +132,7 @@ function editTask(taskContainer){
 		} else {
 			throw new Error('це зрада!');
 		}
-	}).then().then(function(task){
+	}).then(function(task){
 		socket.emit('edit task', task);
 	}).catch(alert);
 }
@@ -128,6 +150,15 @@ function deleteTask(taskContainer){
 }
 
 // Requests
+function sendGetFibonacciReq(){
+	return fetch('/api/math/', {
+		method: 'GET',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		}
+	})
+}
 
 function sendEditTaskReq(taskContainer){
 	var name = taskContainer.querySelector('.task-name').value;
