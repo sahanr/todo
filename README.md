@@ -1,5 +1,7 @@
 todo task
 
-npm install
-npm start
-open http://localhost:4444/
+1. yarn
+
+2. yarn start
+
+3. open http://localhost:4444/
