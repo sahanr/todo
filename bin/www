@@ -7,6 +7,8 @@
 var app = require('../app/index');
 var debug = require('debug')('todo:server');
 var http = require('http');
+var cluster = require('cluster');
+var numCPUs = require('os').cpus().length;
 const socketService = require('../app/socket/socketService');
 /**
  * Get port from environment and store in Express.
@@ -19,7 +21,18 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
+if (cluster.isMaster) {
+  console.log(`Master ${process.pid} is running`);
 
+  // Fork workers.
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`worker ${worker.process.pid} died`);
+  });
+} else {
 var server = http.createServer(app);
 
 const io = require('socket.io')(server);
@@ -33,6 +46,7 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 console.info('==> Listening on port %s. Open up http://%s:%s/ in your browser.', port, IP, port);
+}
 
 /**
  * Normalize a port into a number, string, or false.
